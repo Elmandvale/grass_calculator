@@ -113,7 +113,7 @@
 <body>
   <div class="container">
     <div class="card">
-      <p style="font-family: 'Lato', sans-serif; font-size: 1.1rem; margin-top: 0.25rem;">
+      <p style="font-family: 'Lato', sans-serif; font-size: 1.1rem; margin-top: 0.5rem;">
         Use our quick grass cutting calculator for an estimated price based on the size and condition of your lawn. It's fast and easy.
       </p>
 
@@ -149,6 +149,14 @@
         <option value="very_long">Over 24 inches (Custom Quote Required)</option>
       </select>
 
+      <h2>5. Frequency</h2>
+      <select id="frequency">
+        <option value="one_off">One-off</option>
+        <option value="monthly">Monthly (-10%)</option>
+        <option value="fortnightly">Fortnightly (-15%)</option>
+        <option value="weekly">Weekly (-20%)</option>
+      </select>
+
       <div class="sticky-button" style="text-align: center;">
         <button class="fade-in" onclick="calculatePrice()">Get My Price</button>
       </div>
@@ -162,6 +170,7 @@
       const terrain = document.getElementById('terrain').value;
       const access = document.getElementById('access').value;
       const grassLength = document.getElementById('grassLength').value;
+      const frequency = document.getElementById('frequency').value;
 
       if (lawnSize === 'estate' || grassLength === 'very_long' || grassLength === 'medium_remove' || grassLength === 'long_remove') {
         document.getElementById('priceOutput').textContent = "Custom quote required. Please contact us.";
@@ -180,12 +189,16 @@
       if (grassLength === 'medium_mulch') basePrice *= 1.15;
       if (grassLength === 'long_mulch') basePrice *= 1.25;
 
+      if (frequency === 'monthly') basePrice *= 0.90;
+      if (frequency === 'fortnightly') basePrice *= 0.85;
+      if (frequency === 'weekly') basePrice *= 0.80;
+
       basePrice = Math.round(basePrice);
       document.getElementById('priceOutput').textContent = `Your price is £${basePrice}*`;
     }
   </script>
 
-  <div style="text-align: right; padding: 0.25rem; max-width: 600px; margin: 0 auto;">
+  <div style="text-align: right; padding: 1rem; max-width: 600px; margin: 0 auto;">
     <img src="./Elm%20and%20Vale%20Logo.png" alt="Elm & Vale Logo" style="height: 40px; opacity: 0.8;">
   </div>
 </body>
