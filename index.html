@@ -196,7 +196,13 @@
       basePrice = Math.round(basePrice);
       document.getElementById('priceOutput').textContent = `Your price is £${basePrice}*`;
     }
-  </script>
+  document.getElementById('frequency').addEventListener('change', function () {
+  const freq = this.value;
+  if (freq === 'weekly' || freq === 'fortnightly') {
+    document.getElementById('grassLength').value = 'standard';
+  }
+});
+</script>
 
   <div style="text-align: right; padding: 1rem; max-width: 600px; margin: 0 auto;">
     <img src="./Elm%20and%20Vale%20Logo.png" alt="Elm & Vale Logo" style="height: 40px; opacity: 0.8;">
