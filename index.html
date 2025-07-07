@@ -83,42 +83,17 @@
       text-align: center;
       margin-top: 1rem;
     }
-      .fade-in {
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInUp 0.6s ease-out forwards;
-    }
-
-    @keyframes fadeInUp {
-      to {
-        opacity: 1;
-        transform: none;
-      }
-    }
-
-    select:focus {
-      outline: none;
-      box-shadow: 0 0 5px var(--field-border);
-    }
-
-    .sticky-button {
-      position: sticky;
-      bottom: 1rem;
-      z-index: 999;
-      background: var(--background);
-      padding-top: 1rem;
-    }
-</style>
+  </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
-      <p style="font-family: 'Lato', sans-serif; font-size: 1.1rem; margin-top: 0.5rem;">
-        Use our quick grass cutting calculator for an estimated price based on the size and condition of your lawn. It's fast and easy.
+      <p style="font-size: 1.1rem; margin-top: 0.5rem;">
+        Use our quick grass cutting calculator for an estimated price based on the size and condition of your lawn.
       </p>
 
-      <h2 class="fade-in">1. What size is your lawn?</h2>
-      <select class="fade-in" id="lawnSize">
+      <h2>1. What size is your lawn?</h2>
+      <select id="lawnSize">
         <option value="small">Small (up to 1/4 acre)</option>
         <option value="medium">Medium (1/4 - 1/2 acre)</option>
         <option value="large">Large (1/2 - 1 acre)</option>
@@ -141,15 +116,17 @@
 
       <h2>4. Grass Length</h2>
       <select id="grassLength">
-        <option value="standard">Up to 6 inches (Standard)</option>
-        <option value="medium_mulch">Up to 12 inches - Grass Mulched</option>
-        <option value="medium_remove">Up to 12 inches - Grass Removed (Custom Quote Required)</option>
-        <option value="long_mulch">Up to 24 inches - Grass Mulched</option>
-        <option value="long_remove">Up to 24 inches - Grass Removed (Custom Quote Required)</option>
-        <option value="very_long">Over 24 inches (Custom Quote Required)</option>
+        <option value="1_3_mulch">1–3 inches – Mulched</option>
+        <option value="1_3_remove">1–3 inches – Removed</option>
+        <option value="3_6_mulch">3–6 inches – Mulched</option>
+        <option value="3_6_remove">3–6 inches – Removed</option>
+        <option value="6_12_mulch">6–12 inches – Mulched</option>
+        <option value="6_12_remove">6–12 inches – Removed</option>
+        <option value="12_24_mulch">12–24+ inches – Mulched</option>
+        <option value="12_24_remove">12–24+ inches – Removed</option>
       </select>
 
-      <h2>5. Frequency <span style="font-size: 60%; font-weight: normal;">(weekly, fortnightly & monthly prices offered as 6-mth term)</span></h2>
+      <h2>5. Frequency <span style="font-size: 60%; font-weight: normal;">(weekly, fortnightly & monthly prices offered as 6-month term)</span></h2>
       <select id="frequency">
         <option value="one_off">One-off</option>
         <option value="monthly">Monthly (-10%)</option>
@@ -157,13 +134,14 @@
         <option value="weekly">Weekly (-20%)</option>
       </select>
 
-      <div class="sticky-button" style="text-align: center;">
-        <button class="fade-in" onclick="calculatePrice()">Get My Price</button>
+      <div style="text-align: center; margin-top: 1.5rem;">
+        <button onclick="calculatePrice()">Get My Price</button>
       </div>
       <p id="priceOutput" class="result"></p>
-<p style="text-align: center; font-size: 0.9rem; font-style: italic; color: var(--text-color);">*Subject to in-person survey</p>
+      <p style="text-align: center; font-size: 0.9rem; font-style: italic; color: var(--text-color);">*Subject to in-person survey</p>
     </div>
-  
+  </div>
+
   <script>
     function calculatePrice() {
       const lawnSize = document.getElementById('lawnSize').value;
@@ -172,7 +150,7 @@
       const grassLength = document.getElementById('grassLength').value;
       const frequency = document.getElementById('frequency').value;
 
-      if (lawnSize === 'estate' || grassLength === 'very_long' || grassLength === 'medium_remove' || grassLength === 'long_remove') {
+      if (lawnSize === 'estate') {
         document.getElementById('priceOutput').textContent = "Custom quote required. Please contact us.";
         return;
       }
@@ -185,9 +163,25 @@
 
       if (terrain === 'obstacles') basePrice *= 1.15;
       if (terrain === 'complex') basePrice *= 1.25;
-      if (access === 'difficult') basePrice *= 1.10;
-      if (grassLength === 'medium_mulch') basePrice *= 1.15;
-      if (grassLength === 'long_mulch') basePrice *= 1.25;
+      if (access === 'difficult') basePrice *= 1.1;
+
+      // Grass length multipliers and waste cost (based on volume)
+      let wasteCost = 0;
+      if (grassLength.endsWith('mulch')) {
+        if (grassLength.includes('3_6')) basePrice *= 1.15;
+        if (grassLength.includes('6_12')) basePrice *= 1.25;
+        if (grassLength.includes('12_24')) basePrice *= 1.4;
+      } else if (grassLength.endsWith('remove')) {
+        if (grassLength.includes('1_3')) wasteCost = 15;
+        if (grassLength.includes('3_6')) { basePrice *= 1.15; wasteCost = 25; }
+        if (grassLength.includes('6_12')) { basePrice *= 1.25; wasteCost = 40; }
+        if (grassLength.includes('12_24')) {
+          document.getElementById('priceOutput').textContent = "Custom quote required due to volume. Please contact us.";
+          return;
+        }
+      }
+
+      basePrice += wasteCost;
 
       if (frequency === 'monthly') basePrice *= 0.90;
       if (frequency === 'fortnightly') basePrice *= 0.85;
@@ -196,16 +190,6 @@
       basePrice = Math.round(basePrice);
       document.getElementById('priceOutput').textContent = `Your price is £${basePrice}*`;
     }
-  document.getElementById('frequency').addEventListener('change', function () {
-  const freq = this.value;
-  if (freq === 'weekly' || freq === 'fortnightly') {
-    document.getElementById('grassLength').value = 'standard';
-  }
-});
-</script>
-
-  <div style="text-align: right; padding: 1rem; max-width: 600px; margin: 0 auto;">
-    <img src="./Elm%20and%20Vale%20Logo.png" alt="Elm & Vale Logo" style="height: 40px; opacity: 0.8;">
-  </div>
+  </script>
 </body>
 </html>
